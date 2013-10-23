@@ -1,5 +1,5 @@
-require "cloudformator/version"
+require "cloudformer/version"
 
-module Cloudformator
+module Cloudformer
   # Your code goes here...
 end
