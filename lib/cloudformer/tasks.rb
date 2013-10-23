@@ -21,11 +21,13 @@ module Cloudformer
      define_events_task
      define_status_task
      define_outputs_task
+     define_recreate_task
    end
 
    def define_create_task
      desc "Apply Stack with Cloudformation script and parameters."
      task :apply do
+       p template
        @stack.apply(template, parameters)
      end
    end
@@ -52,6 +54,10 @@ module Cloudformer
      task :outputs do
        @stack.outputs
      end
+   end
+   def define_recreate_task
+     desc "Recreate stack."
+     task :recreate => [:delete, :apply, :outputs]
    end
  end
 end
