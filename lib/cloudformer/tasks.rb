@@ -6,8 +6,13 @@ module Cloudformer
    def initialize(stack_name)
      @stack_name = stack_name
      @stack =Stack.new(stack_name)
-     define_tasks
+     if block_given?
+       yield self
+       define_tasks
+     end
    end
+
+   attr_accessor :template, :parameters
 
    private
    def define_tasks
@@ -21,7 +26,7 @@ module Cloudformer
    def define_create_task
      desc "Apply Stack with Cloudformation script and parameters."
      task :apply do
-       @stack.apply
+       @stack.apply(template, parameters)
      end
    end
    def define_delete_task
