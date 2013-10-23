@@ -63,8 +63,11 @@ class Stack
   end
 
   def outputs
-    return 1 if !deployed
     with_highlight do
+    if !deployed
+      puts "Stack not up."
+      return 1
+    end
       stack.outputs.each do |output|
         puts "#{output.key} - #{output.description} - #{output.value}"
       end
