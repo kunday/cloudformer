@@ -13,7 +13,7 @@ rake status          # Get the deployed app status
 
 ```
 
-Tasks which enforces a stack change will wait in a loop untill the task is complete(useful in continuous deployment environments) and prints the stack events untill either ROLLBACK/COMPLETE or DELETE is signalled on the stack. Refer [examples section](#examples) for more information. The outputs are in human readable format and validates template before hitting the endpoint.
+Tasks which enforces a stack change will wait in a loop untill the task is complete(useful in continuous deployment environments) and prints the stack events untill either ROLLBACK/COMPLETE or DELETE is signalled on the stack. Refer [examples section](#example) for more information. The outputs are in human readable format and validates template before hitting the endpoint.
 
 ## Installation
 
