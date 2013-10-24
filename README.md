@@ -1,10 +1,10 @@
-# Cloudformer
+# CloudFormer
 
 Cloudformer provides rake tasks to ease AWS Cloudformation stack creation process. Once configured, cloudformer provides the following set of tasks:
 
 ```
 
-rake apply           # Apply Stack with Cloudformation script and parameters(And wait till complete)
+rake apply           # Apply Stack with Cloudformation script and parameters(And wait till complete - supports updates)
 rake delete          # Delete stack from CloudFormation(And wait till stack is complete)
 rake events          # Get the recent events from the stack
 rake outputs         # Get the outputs of stack
@@ -12,6 +12,8 @@ rake recreate        # Recreate stack(runs delete & apply)
 rake status          # Get the deployed app status
 
 ```
+
+Tasks which enforces a stack change will wait in a loop untill the task is complete(useful in continuous deployment environments) and prints the stack events untill either ROLLBACK/COMPLETE or DELETE is signalled on the stack. Refer [examples section](#examples) for more information. The outputs are in human readable format and validates template before hitting the endpoint.
 
 ## Installation
 
@@ -40,6 +42,7 @@ Cloudformer depends on the aws-sdk gem to perform actions on AWS. You will need 
 
 You can add cloudformer tasks to your project by adding something similar to:
 
+	require 'cloudformer/tasks'
     Cloudformer::Tasks.new("earmark") do |t|
       t.template = "cloudformation/cloudformation.json"
       t.parameters = parameters
@@ -64,6 +67,144 @@ the parameter hash(Ruby Object) would look like:
       "PackageVersion" => "123"  
     }  
 
+If you have a template with no parameters, pass an empty hash `{}` instead.
+
+## Example
+
+Here is a simple Cloudformation Stack(Code available in the samples directory) with a Single EC2 Server:
+
+    {
+      "AWSTemplateFormatVersion": "2010-09-09",
+      "Description": "Cloudformer - Demo App",
+      "Parameters": {
+        "AmiId": {
+          "Type": "String"
+        }
+        },
+        "Resources": {
+          "ApplicationServer": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+              "ImageId": {
+                "Ref": "AmiId"
+                },
+                "InstanceType": "t1.micro",
+                "Monitoring": "false"
+            }
+          }
+        },
+        "Outputs": {
+          "Server": {
+            "Value": {
+              "Fn::GetAtt": [
+                "ApplicationServer",
+                "PrivateIp"
+              ]
+            }
+          }
+        }
+    }
+    
+Then, in your Rakefile add, 
+
+    require 'cloudformer/tasks'
+
+    Cloudformer::Tasks.new("app") do |t|
+      t.template = "basic_template.json"
+      #AMI Works in Sydney region only, ensure you supply the right AMI.
+      t.parameters = {"AmiId" => "ami-8da439b7"}
+    end
+
+You should then see following commands:
+
+    rake apply     # Apply Stack with Cloudformation script and parameters
+    rake delete    # Delete stack from CloudFormation
+    rake events    # Get the recent events from the stack
+    rake outputs   # Get the outputs of stack
+    rake recreate  # Recreate stack
+    rake status    # Get the deployed app status
+
+Running `rake status` gives us:
+
+    ===============================================
+      app - Not Deployed
+    ================================================
+
+Running `rake apply` will create an environment or update existing depending on the nature of action requested in parameters:
+
+    Initializing stack creation...
+    ==================================================================================================
+    2013-10-24 07:55:24 UTC - AWS::CloudFormation::Stack - CREATE_IN_PROGRESS - User Initiated
+    2013-10-24 07:55:36 UTC - AWS::EC2::Instance - CREATE_IN_PROGRESS -
+    2013-10-24 07:55:37 UTC - AWS::EC2::Instance - CREATE_IN_PROGRESS - Resource creation Initiated
+    2013-10-24 07:56:25 UTC - AWS::EC2::Instance - CREATE_COMPLETE -
+    2013-10-24 07:56:26 UTC - AWS::CloudFormation::Stack - CREATE_COMPLETE -
+    ==================================================================================================
+
+Running `rake apply` again gives us:
+    
+    No updates are to be performed.
+
+To remove the stack `rake delete` gives us:
+
+    ==============================================================================================
+    Attempting to delete stack - app
+    ==============================================================================================
+    2013-10-24 07:55:24 UTC - AWS::CloudFormation::Stack - CREATE_IN_PROGRESS - User Initiated
+    2013-10-24 07:55:36 UTC - AWS::EC2::Instance - CREATE_IN_PROGRESS -
+    2013-10-24 07:55:37 UTC - AWS::EC2::Instance - CREATE_IN_PROGRESS - Resource creation Initiated
+    2013-10-24 07:56:25 UTC - AWS::EC2::Instance - CREATE_COMPLETE -
+    2013-10-24 07:56:26 UTC - AWS::CloudFormation::Stack - CREATE_COMPLETE -
+    2013-10-24 07:58:54 UTC - AWS::CloudFormation::Stack - DELETE_IN_PROGRESS - User Initiated
+    2013-10-24 07:58:56 UTC - AWS::EC2::Instance - DELETE_IN_PROGRESS -
+
+Attempts to delete a non-existing stack will result in:
+
+    ==============================================
+    Attempting to delete stack - app
+    ==============================================
+    Stack not up.
+    ==============================================
+
+To recreate the stack use `rake recreate`:
+  
+    =================================================================================================
+    Attempting to delete stack - app
+    =================================================================================================
+    2013-10-24 08:04:11 UTC - AWS::CloudFormation::Stack - CREATE_IN_PROGRESS - User Initiated
+    2013-10-24 08:04:22 UTC - AWS::EC2::Instance - CREATE_IN_PROGRESS -
+    2013-10-24 08:04:23 UTC - AWS::EC2::Instance - CREATE_IN_PROGRESS - Resource creation Initiated
+    2013-10-24 08:05:12 UTC - AWS::EC2::Instance - CREATE_COMPLETE -
+    2013-10-24 08:05:13 UTC - AWS::CloudFormation::Stack - CREATE_COMPLETE -
+    2013-10-24 08:05:52 UTC - AWS::CloudFormation::Stack - DELETE_IN_PROGRESS - User Initiated
+    2013-10-24 08:06:02 UTC - AWS::EC2::Instance - DELETE_IN_PROGRESS -
+    Stack deleted successfully.
+    Initializing stack creation...
+    =================================================================================================
+    2013-10-24 08:06:31 UTC - AWS::CloudFormation::Stack - CREATE_IN_PROGRESS - User Initiated
+    2013-10-24 08:06:52 UTC - AWS::EC2::Instance - CREATE_IN_PROGRESS -
+    2013-10-24 08:06:54 UTC - AWS::EC2::Instance - CREATE_IN_PROGRESS - Resource creation Initiated
+    2013-10-24 08:07:41 UTC - AWS::EC2::Instance - CREATE_COMPLETE -
+    =================================================================================================
+    =================================================================================================
+    Server -  - 172.31.3.52
+    =================================================================================================
+
+To see the stack outputs `rake outputs`:
+    
+    ==============================
+    Server -  - 172.31.3.52
+    ============================== 
+
+To see recent events on the stack `rake events`:
+    
+    ==================================================================================================
+    2013-10-24 08:06:31 UTC - AWS::CloudFormation::Stack - CREATE_IN_PROGRESS - User Initiated
+    2013-10-24 08:06:52 UTC - AWS::EC2::Instance - CREATE_IN_PROGRESS -
+    2013-10-24 08:06:54 UTC - AWS::EC2::Instance - CREATE_IN_PROGRESS - Resource creation Initiated
+    2013-10-24 08:07:41 UTC - AWS::EC2::Instance - CREATE_COMPLETE -
+    2013-10-24 08:07:43 UTC - AWS::CloudFormation::Stack - CREATE_COMPLETE -
+    ==================================================================================================
 
 ## Contributing
 

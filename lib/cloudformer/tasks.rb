@@ -34,7 +34,11 @@ module Cloudformer
    def define_delete_task
      desc "Delete stack from CloudFormation"
      task :delete do
-       @stack.delete
+      begin
+        @stack.delete
+      rescue
+        puts "Stack deleted successfully."
+      end
      end
    end
    def define_status_task

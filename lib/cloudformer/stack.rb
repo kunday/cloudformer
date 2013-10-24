@@ -1,3 +1,5 @@
+require 'aws-sdk'
+
 class Stack
   attr_accessor :stack, :name, :deployed
   def initialize(stack_name)

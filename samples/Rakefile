@@ -1,0 +1,7 @@
+require 'cloudformer'
+
+Cloudformer::Tasks.new("app") do |t|
+  t.template = "basic_template.json"
+  #AMI Works in Sydney region only, ensure you supply the right AMI.
+  t.parameters = {"AmiId" => "ami-8da439b7"}
+end

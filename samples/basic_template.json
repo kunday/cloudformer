@@ -1,0 +1,31 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Cloudformer - Demo App",
+  "Parameters": {
+    "AmiId": {
+      "Type": "String"
+    }
+    },
+    "Resources": {
+      "ApplicationServer": {
+        "Type": "AWS::EC2::Instance",
+        "Properties": {
+          "ImageId": {
+            "Ref": "AmiId"
+            },
+            "InstanceType": "t1.micro",
+            "Monitoring": "false"
+        }
+      }
+    },
+    "Outputs": {
+      "Server": {
+        "Value": {
+          "Fn::GetAtt": [
+            "ApplicationServer",
+            "PrivateIp"
+          ]
+        }
+      }
+    }
+}
