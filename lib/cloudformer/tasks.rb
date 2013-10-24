@@ -28,7 +28,6 @@ module Cloudformer
    def define_create_task
      desc "Apply Stack with Cloudformation script and parameters."
      task :apply do
-       p template
        @stack.apply(template, parameters)
      end
    end
