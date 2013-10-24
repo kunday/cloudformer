@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = Cloudformer::VERSION
   spec.authors       = ["Arvind Kunday"]
   spec.email         = ["hi@kunday.com"]
-  spec.description   = %q{Rake helper tasks for Cloudformation}
-  spec.summary       = %q{Helper tools for aws cloudformation}
-  spec.homepage      = ""
+  spec.description   = %q{Cloudformation tasks for apply(create/update), delete, recreate on stack along with validations on templates}
+  spec.summary       = %q{Cloudformer attempts to simplify AWS Cloudformation stack creation process in ruby projects by providing reusable rake tasks to perform common operations such as apply(create/update), delete, recreate on stack along with validations on templates.}
+  spec.homepage      = "https://github.com/kunday/cloudformer"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
