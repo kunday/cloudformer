@@ -1,5 +1,6 @@
 require 'cloudformer/version'
 require 'cloudformer/stack'
+require 'rake/tasklib'
 
 module Cloudformer
  class Tasks < Rake::TaskLib
