@@ -1,6 +1,8 @@
 # CloudFormer
 
-Cloudformer provides rake tasks to ease AWS Cloudformation stack creation process. Once configured, cloudformer provides the following set of tasks:
+Cloudformer attempts to simplify AWS Cloudformation stack creation process in ruby projects by providing reusable rake tasks to perform common operations such as apply(create/update), delete, recreate on stack along with validations on templates. Task executions which enforce a stack change will wait until ROLLBACK/COMPLETE or DELETE is signalled on the stack (useful in continuous deployment environments to wait until deployment is successful). Refer [examples section](#example) for more information.
+
+The list of rake tasks provided are:
 
 ```
 
@@ -13,7 +15,6 @@ rake status          # Get the deployed app status
 
 ```
 
-Tasks which enforces a stack change will wait in a loop untill the task is complete(useful in continuous deployment environments) and prints the stack events untill either ROLLBACK/COMPLETE or DELETE is signalled on the stack. Refer [examples section](#example) for more information. The outputs are in human readable format and validates template before hitting the endpoint.
 
 ## Installation
 
