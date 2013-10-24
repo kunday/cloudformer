@@ -31,7 +31,7 @@ Or install it yourself as:
 
 ## AWS Environment configuration
 
-Cloudformer depends on the aws-sdk gem to perform actions on AWS. You will need to export AWS configuration to your environment. You could export it to your .bashrc/.bash_profile or your build server using environment variables:
+Cloudformer depends on the aws-sdk gem to query AWS API. You will need to export AWS configuration to environment variables to your .bashrc/.bash_profile or your build server:
 
     export AWS_ACCESS_KEY=your access key
     export AWS_REGION=ap-southeast-2
@@ -40,9 +40,9 @@ Cloudformer depends on the aws-sdk gem to perform actions on AWS. You will need 
 
 ## Configuration
 
-You can add cloudformer tasks to your project by adding something similar to:
+You can add cloudformer tasks to your project by adding the following to your rake file:
 
-	require 'cloudformer/tasks'
+	require 'cloudformer'
     Cloudformer::Tasks.new("earmark") do |t|
       t.template = "cloudformation/cloudformation.json"
       t.parameters = parameters
