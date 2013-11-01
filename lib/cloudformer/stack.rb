@@ -59,7 +59,7 @@ class Stack
         return
       end
       stack.events.sort_by {|a| a.timestamp}.each do |event|
-        puts "#{event.timestamp} - #{event.resource_type} - #{event.resource_status} - #{event.resource_status_reason.to_s}"
+        puts "#{event.timestamp} - #{event.logical_resource_id} - #{event.resource_type} - #{event.resource_status} - #{event.resource_status_reason.to_s}"
       end
     end
   end
