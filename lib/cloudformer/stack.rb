@@ -6,6 +6,7 @@ class Stack
     @name = stack_name
     @cf = AWS::CloudFormation.new
     @stack = @cf.stacks[name]
+    @ec2 = AWS::EC2.new
   end
 
   def deployed
@@ -32,6 +33,14 @@ class Stack
     else
       return 0
     end
+  end
+
+  def stop_instances
+   update_instances("stop")
+  end
+
+  def start_instances
+    update_instances("start")
   end
 
   def delete
@@ -135,5 +144,18 @@ class Stack
   rescue ::AWS::CloudFormation::Errors::ValidationError => e
     puts e.message
     return false
+  end
+
+  def update_instances(action)
+    with_highlight do
+      puts "Attempting to #{action} all ec2 instances in the stack #{stack.name}"
+      return "Stack not up" if !deployed
+      stack.resources.each do |resource|
+        next if resource.resource_type != "AWS::EC2::Instance"
+        physical_resource_id = resource.physical_resource_id
+        puts "Attempting to #{action} Instance with physical_resource_id: #{physical_resource_id}"
+        @ec2.instances[physical_resource_id].send(action)
+      end
+    end
   end
 end

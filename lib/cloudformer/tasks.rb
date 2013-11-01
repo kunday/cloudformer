@@ -23,6 +23,8 @@ module Cloudformer
      define_status_task
      define_outputs_task
      define_recreate_task
+     define_stop_task
+     define_start_task
    end
 
    def define_create_task
@@ -62,6 +64,20 @@ module Cloudformer
    def define_recreate_task
      desc "Recreate stack."
      task :recreate => [:delete, :apply, :outputs]
+   end
+
+   def define_stop_task
+    desc "Stop EC2 instances in stack."
+    task :stop do
+      @stack.stop_instances
+    end
+   end
+
+   def define_start_task
+    desc "Start EC2 instances in stack."
+    task :start do
+      @stack.start_instances
+    end
    end
  end
 end
