@@ -13,7 +13,7 @@ module Cloudformer
      end
    end
 
-   attr_accessor :template, :parameters
+   attr_accessor :template, :parameters, :disable_rollback
 
    private
    def define_tasks

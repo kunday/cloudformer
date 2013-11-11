@@ -13,7 +13,7 @@ class Stack
     return stack.exists?
   end
 
-  def apply(template_file, parameters)
+  def apply(template_file, parameters, disable_rollback=false)
     template = File.read(template_file)
     validation = validate(template)
     unless validation["valid"]
@@ -24,7 +24,7 @@ class Stack
     if deployed
       pending_operations = update(template, parameters)
     else
-      pending_operations = create(template, parameters)
+      pending_operations = create(template, parameters, disable_rollback)
     end
     wait_until_end if pending_operations
     if stack.status == "ROLLBACK_COMPLETE"
@@ -136,9 +136,9 @@ class Stack
     return false
   end
 
-  def create(template, parameters)
+  def create(template, parameters, disable_rollback)
     puts "Initializing stack creation..."
-    @cf.stacks.create(name, template, :parameters => parameters)
+    @cf.stacks.create(name, template, :parameters => parameters, :disable_rollback => disable_rollback)
     sleep 10
     return true
   rescue ::AWS::CloudFormation::Errors::ValidationError => e
