@@ -30,7 +30,7 @@ module Cloudformer
    def define_create_task
      desc "Apply Stack with Cloudformation script and parameters."
      task :apply do
-       @stack.apply(template, parameters)
+       @stack.apply(template, parameters, disable_rollback)
      end
    end
    def define_delete_task
