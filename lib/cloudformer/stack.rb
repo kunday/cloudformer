@@ -105,7 +105,7 @@ class Stack
         end
         printed.concat(printable_events.map(&:event_id))
         break if !stack.status.match(/_COMPLETE$/).nil?
-        sleep(5)
+        sleep(30)
       end
     end
   end
