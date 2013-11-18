@@ -13,11 +13,12 @@ module Cloudformer
      end
    end
 
-   attr_accessor :template, :parameters, :disable_rollback
+   attr_accessor :template, :parameters, :disable_rollback, :retry_delete, :capabilities
 
    private
    def define_tasks
      define_create_task
+     define_validate_task
      define_delete_task
      define_events_task
      define_status_task
@@ -30,7 +31,10 @@ module Cloudformer
    def define_create_task
      desc "Apply Stack with Cloudformation script and parameters."
      task :apply do
-       @stack.apply(template, parameters, disable_rollback)
+        if retry_delete
+          @stack.delete
+        end
+       @stack.apply(template, parameters, disable_rollback, capabilities)
      end
    end
    def define_delete_task
@@ -77,6 +81,13 @@ module Cloudformer
     desc "Start EC2 instances in stack."
     task :start do
       @stack.start_instances
+    end
+   end
+
+   def define_validate_task
+    desc "Validate the Stack."
+    task :validate do
+      @stack.validate(template)
     end
    end
  end

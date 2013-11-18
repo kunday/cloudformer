@@ -5,4 +5,5 @@ Cloudformer::Tasks.new("arvind-test") do |t|
   #AMI Works in Sydney region only, ensure you supply the right AMI.
   t.parameters = {"AmiId" => "ami-8da439b7"}
   t.disable_rollback = true
+  t.capabilities=[]
 end
