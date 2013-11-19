@@ -27,7 +27,7 @@ class Stack
       pending_operations = create(template, parameters, disable_rollback, capabilities)
     end
     wait_until_end if pending_operations
-    if stack.status == "ROLLBACK_COMPLETE"
+    if stack.status == "ROLLBACK_COMPLETE" || stack.status == "CREATE_FAILED"
       puts "Unable to update template. Check log for more information."
       return 1
     else
@@ -159,10 +159,14 @@ class Stack
       puts "Attempting to #{action} all ec2 instances in the stack #{stack.name}"
       return "Stack not up" if !deployed
       stack.resources.each do |resource|
-        next if resource.resource_type != "AWS::EC2::Instance"
-        physical_resource_id = resource.physical_resource_id
-        puts "Attempting to #{action} Instance with physical_resource_id: #{physical_resource_id}"
-        @ec2.instances[physical_resource_id].send(action)
+        begin
+          next if resource.resource_type != "AWS::EC2::Instance"
+          physical_resource_id = resource.physical_resource_id
+          puts "Attempting to #{action} Instance with physical_resource_id: #{physical_resource_id}"
+          @ec2.instances[physical_resource_id].send(action)
+        rescue
+          puts "Some resources are not up."
+        end
       end
     end
   end

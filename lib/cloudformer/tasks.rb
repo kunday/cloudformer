@@ -20,6 +20,7 @@ module Cloudformer
      define_create_task
      define_validate_task
      define_delete_task
+     define_delete_with_stop_task
      define_events_task
      define_status_task
      define_outputs_task
@@ -34,7 +35,7 @@ module Cloudformer
         if retry_delete
           @stack.delete
         end
-       @stack.apply(template, parameters, disable_rollback, capabilities)
+       exit @stack.apply(template, parameters, disable_rollback, capabilities)
      end
    end
    def define_delete_task
@@ -47,6 +48,19 @@ module Cloudformer
       end
      end
    end
+
+   def define_delete_with_stop_task
+    desc "Delete stack after stopping all instances"
+    task :force_delete do
+      begin
+        @stack.stop_instances
+        @stack.delete
+      rescue => e
+        puts "Stack delete message - #{e.message}"
+      end
+    end
+   end
+   
    def define_status_task
      desc "Get the deployed app status."
      task :status do
