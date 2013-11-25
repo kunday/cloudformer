@@ -22,7 +22,7 @@ class Stack
     end
     pending_operations = false
     if deployed
-      pending_operations = update(template, parameters)
+      pending_operations = update(template, parameters, capabilities)
     else
       pending_operations = create(template, parameters, disable_rollback, capabilities)
     end
@@ -133,10 +133,11 @@ class Stack
     }
   end
 
-  def update(template, parameters)
+  def update(template, parameters, capabilities)
     stack.update({
       :template => template,
-      :parameters => parameters
+      :parameters => parameters,
+      :capabilities => capabilities
     })
     return true
   rescue ::AWS::CloudFormation::Errors::ValidationError => e
