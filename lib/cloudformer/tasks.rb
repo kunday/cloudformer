@@ -35,14 +35,15 @@ module Cloudformer
         if retry_delete
           @stack.delete
         end
-       exit @stack.apply(template, parameters, disable_rollback, capabilities)
+       exit 1 unless @stack.apply(template, parameters, disable_rollback, capabilities)
      end
    end
+
    def define_delete_task
      desc "Delete stack from CloudFormation"
      task :delete do
       begin
-        @stack.delete
+        exit 1 unless @stack.delete
       rescue
         puts "Stack deleted successfully."
       end
@@ -54,25 +55,27 @@ module Cloudformer
     task :force_delete do
       begin
         @stack.stop_instances
-        @stack.delete
+        exit 1 unless @stack.delete
       rescue => e
         puts "Stack delete message - #{e.message}"
       end
     end
    end
-   
+
    def define_status_task
      desc "Get the deployed app status."
      task :status do
-       @stack.status
+      @stack.status
      end
    end
+
    def define_events_task
      desc "Get the recent events from the stack."
      task :events do
        @stack.events
      end
    end
+
    def define_outputs_task
      desc "Get the outputs of stack."
      task :outputs do

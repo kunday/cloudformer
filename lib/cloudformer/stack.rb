@@ -2,6 +2,12 @@ require 'aws-sdk'
 
 class Stack
   attr_accessor :stack, :name, :deployed
+
+  SUCESS_STATES  = ["CREATE_COMPLETE", "UPDATE_COMPLETE"]
+  FAILURE_STATES = ["CREATE_FAILED", "DELETE_FAILED", "UPDATE_ROLLBACK_FAILED", "ROLLBACK_FAILED", "ROLLBACK_COMPLETE","ROLLBACK_FAILED","UPDATE_ROLLBACK_COMPLETE","UPDATE_ROLLBACK_FAILED"]
+  END_STATES     = SUCESS_STATES + FAILURE_STATES
+
+  # WAITING_STATES = ["CREATE_IN_PROGRESS","DELETE_IN_PROGRESS","ROLLBACK_IN_PROGRESS","UPDATE_COMPLETE_CLEANUP_IN_PROGRESS","UPDATE_IN_PROGRESS","UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS","UPDATE_ROLLBACK_IN_PROGRESS"]
   def initialize(stack_name)
     @name = stack_name
     @cf = AWS::CloudFormation.new
@@ -18,7 +24,7 @@ class Stack
     validation = validate(template)
     unless validation["valid"]
       puts "Unable to update - #{validation["response"][:code]} - #{validation["response"][:message]}"
-      return 1
+      return false
     end
     pending_operations = false
     if deployed
@@ -27,12 +33,13 @@ class Stack
       pending_operations = create(template, parameters, disable_rollback, capabilities)
     end
     wait_until_end if pending_operations
-    if stack.status == "ROLLBACK_COMPLETE" || stack.status == "CREATE_FAILED"
-      puts "Unable to update template. Check log for more information."
-      return 1
-    else
-      return 0
-    end
+    return deploy_succeded?
+  end
+
+  def deploy_succeded?
+    return true unless FAILURE_STATES.include?(stack.status)
+    puts "Unable to deploy template. Check log for more information."
+    false
   end
 
   def stop_instances
@@ -48,6 +55,7 @@ class Stack
       puts "Attempting to delete stack - #{name}"
       stack.delete
       wait_until_end
+      return deploy_succeded?
     end
   end
 
@@ -93,7 +101,7 @@ class Stack
       "response" => response
     }
   end
-  
+
   private
   def wait_until_end
     printed = []
@@ -103,16 +111,10 @@ class Stack
         return
       end
       loop do
-        exit_loop = false
         printable_events = stack.events.sort_by {|a| a.timestamp}.reject {|a| a if printed.include?(a.event_id)}
-        printable_events.each do |event|
-          puts "#{event.timestamp} - #{event.resource_type} - #{event.resource_status} - #{event.resource_status_reason.to_s}"
-          if event.resource_type == "AWS::CloudFormation::Stack" && !event.resource_status.match(/_COMPLETE$/).nil?
-            exit_loop = true
-          end
-        end
+        printable_events.each { |event| puts "#{event.timestamp} - #{event.resource_type} - #{event.resource_status} - #{event.resource_status_reason.to_s}" }
         printed.concat(printable_events.map(&:event_id))
-        break if !stack.status.match(/_COMPLETE$/).nil? || !stack.status.match(/DELETE_FAILED$/).nil? || !stack.status.match(/CREATE_FAILED$/).nil?
+        break if END_STATES.include?(stack.status)
         sleep(30)
       end
     end
