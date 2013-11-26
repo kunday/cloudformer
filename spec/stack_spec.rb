@@ -18,6 +18,15 @@ describe Stack do
       @cf_stack.should_receive(:exists?).and_return(true)
       @stack.deployed.should be
     end
+
+    describe "#delete" do
+      it "should return a true if delete fails" do
+        pending
+        @cf_stack.should_receive(:exists?).and_return(false)
+        @cf_stack.should_receive(:status)
+        @stack.delete.should be
+      end
+    end
   end
 
   describe "when stack is not deployed" do
