@@ -20,7 +20,11 @@ class Stack
   end
 
   def apply(template_file, parameters, disable_rollback=false, capabilities=[])
-    template = File.read(template_file)
+    if ( template_file =~ /^https:\/\/s3\S+\.amazonaws\.com\/(.*)/ )
+      template = template_file
+    else
+      template = File.read(template_file)
+    end
     validation = validate(template)
     unless validation["valid"]
       puts "Unable to update - #{validation["response"][:code]} - #{validation["response"][:message]}"
