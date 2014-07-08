@@ -19,7 +19,7 @@ class Stack
     return stack.exists?
   end
 
-  def apply(template_file, parameters, disable_rollback=false, capabilities=[])
+  def apply(template_file, parameters, disable_rollback=false, capabilities=[], notify=[])
     if ( template_file =~ /^https:\/\/s3\S+\.amazonaws\.com\/(.*)/ )
       template = template_file
     else
@@ -34,7 +34,7 @@ class Stack
     if deployed
       pending_operations = update(template, parameters, capabilities)
     else
-      pending_operations = create(template, parameters, disable_rollback, capabilities)
+      pending_operations = create(template, parameters, disable_rollback, capabilities, notify)
     end
     wait_until_end if pending_operations
     return deploy_succeded?
@@ -151,9 +151,9 @@ class Stack
     return false
   end
 
-  def create(template, parameters, disable_rollback, capabilities)
+  def create(template, parameters, disable_rollback, capabilities, notify)
     puts "Initializing stack creation..."
-    @cf.stacks.create(name, template, :parameters => parameters, :disable_rollback => disable_rollback, :capabilities => capabilities)
+    @cf.stacks.create(name, template, :parameters => parameters, :disable_rollback => disable_rollback, :capabilities => capabilities, :notify => notify)
     sleep 10
     return true
   rescue ::AWS::CloudFormation::Errors::ValidationError => e
@@ -178,3 +178,4 @@ class Stack
     end
   end
 end
+
