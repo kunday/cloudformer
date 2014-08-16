@@ -13,7 +13,7 @@ module Cloudformer
      end
    end
 
-   attr_accessor :template, :parameters, :disable_rollback, :retry_delete, :capabilities
+   attr_accessor :template, :parameters, :disable_rollback, :retry_delete, :capabilities, :notify
 
    private
    def define_tasks
@@ -35,7 +35,7 @@ module Cloudformer
         if retry_delete
           @stack.delete
         end
-       exit 1 unless @stack.apply(template, parameters, disable_rollback, capabilities)
+       exit 1 unless @stack.apply(template, parameters, disable_rollback, capabilities, notify)
      end
    end
 
