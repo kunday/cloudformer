@@ -106,7 +106,6 @@ class Stack
   def wait_until_end
     printed = []
     current_time = Time.now
-    p current_time
     with_highlight do
       if !deployed
         puts "Stack not up."
