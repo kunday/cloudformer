@@ -76,7 +76,7 @@ class Stack
         return
       end
       stack.events.sort_by {|a| a.timestamp}.each do |event|
-        puts "#{event.timestamp} - #{event.logical_resource_id} - #{event.resource_type} - #{event.resource_status} - #{event.resource_status_reason.to_s}"
+        puts "#{event.timestamp} - #{event.physical_resource_id.to_s} - #{event.logical_resource_id} - #{event.resource_type} - #{event.resource_status} - #{event.resource_status_reason.to_s}"
       end
     end
   end
@@ -105,14 +105,16 @@ class Stack
   private
   def wait_until_end
     printed = []
+    current_time = Time.now
+    p current_time
     with_highlight do
       if !deployed
         puts "Stack not up."
         return
       end
       loop do
-        printable_events = stack.events.sort_by {|a| a.timestamp}.reject {|a| a if printed.include?(a.event_id)}
-        printable_events.each { |event| puts "#{event.timestamp} - #{event.resource_type} - #{event.resource_status} - #{event.resource_status_reason.to_s}" }
+        printable_events = stack.events.reject{|a| (a.timestamp < current_time)}.sort_by {|a| a.timestamp}.reject {|a| a if printed.include?(a.event_id)}
+        printable_events.each { |event| puts "#{event.timestamp} - #{event.physical_resource_id.to_s} - #{event.resource_type} - #{event.resource_status} - #{event.resource_status_reason.to_s}" }
         printed.concat(printable_events.map(&:event_id))
         break if END_STATES.include?(stack.status)
         sleep(30)
