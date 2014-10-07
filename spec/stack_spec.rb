@@ -39,4 +39,18 @@ describe Stack do
       @stack.deployed.should_not be
     end
   end
+
+  describe "when stack operation throws ValidationError" do
+    before :each do
+      @stack = Stack.new("stack")
+      @cf_stack.should_receive(:exists?).and_return(true)
+      File.should_receive(:read).and_return("template")
+      @cf.should_receive(:validate_template).and_return({"valid" => true})
+      @cf_stack.should_receive(:update).and_raise(AWS::CloudFormation::Errors::ValidationError)
+    end
+
+    it "apply should return false to signal the error" do
+      @stack.apply(nil, nil).should be_false
+    end
+  end
 end

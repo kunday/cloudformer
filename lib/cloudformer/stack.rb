@@ -31,10 +31,15 @@ class Stack
       return false
     end
     pending_operations = false
-    if deployed
-      pending_operations = update(template, parameters, capabilities)
-    else
-      pending_operations = create(template, parameters, disable_rollback, capabilities, notify)
+    begin
+      if deployed
+        pending_operations = update(template, parameters, capabilities)
+      else
+        pending_operations = create(template, parameters, disable_rollback, capabilities, notify)
+      end
+    rescue ::AWS::CloudFormation::Errors::ValidationError => e
+      puts e.message
+      return false
     end
     wait_until_end if pending_operations
     return deploy_succeded?
@@ -147,9 +152,6 @@ class Stack
       :capabilities => capabilities
     })
     return true
-  rescue ::AWS::CloudFormation::Errors::ValidationError => e
-    puts e.message
-    return false
   end
 
   def create(template, parameters, disable_rollback, capabilities, notify)
@@ -157,9 +159,6 @@ class Stack
     @cf.stacks.create(name, template, :parameters => parameters, :disable_rollback => disable_rollback, :capabilities => capabilities, :notify => notify)
     sleep 10
     return true
-  rescue ::AWS::CloudFormation::Errors::ValidationError => e
-    puts e.message
-    return false
   end
 
   def update_instances(action)
