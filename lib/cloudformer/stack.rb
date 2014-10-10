@@ -28,7 +28,7 @@ class Stack
     validation = validate(template)
     unless validation["valid"]
       puts "Unable to update - #{validation["response"][:code]} - #{validation["response"][:message]}"
-      return false
+      return :Failed
     end
     pending_operations = false
     begin
@@ -39,10 +39,10 @@ class Stack
       end
     rescue ::AWS::CloudFormation::Errors::ValidationError => e
       puts e.message
-      return false
+      return (if e.message == "No updates are to be performed." then :NoUpdates else :Failed end)
     end
     wait_until_end if pending_operations
-    return deploy_succeded?
+    return (if deploy_succeded? then :Succeeded else :Failed end)
   end
 
   def deploy_succeded?

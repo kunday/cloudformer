@@ -35,7 +35,9 @@ module Cloudformer
         if retry_delete
           @stack.delete
         end
-       exit 1 unless @stack.apply(template, parameters, disable_rollback, capabilities, notify)
+        result = @stack.apply(template, parameters, disable_rollback, capabilities, notify)
+        if result == :Failed then exit 1 end
+        if result == :NoUpdates then exit 2 end
      end
    end
 
