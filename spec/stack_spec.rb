@@ -49,8 +49,38 @@ describe Stack do
       @cf_stack.should_receive(:update).and_raise(AWS::CloudFormation::Errors::ValidationError)
     end
 
-    it "apply should return false to signal the error" do
-      @stack.apply(nil, nil).should be_false
+    it "apply should return Failed to signal the error" do
+      @stack.apply(nil, nil).should be(:Failed)
+    end
+  end
+
+  describe "when stack operation throws ValidationError because no updates are to be performed" do
+    before :each do
+      @stack = Stack.new("stack")
+      @cf_stack.should_receive(:exists?).and_return(true)
+      File.should_receive(:read).and_return("template")
+      @cf.should_receive(:validate_template).and_return({"valid" => true})
+      @cf_stack.should_receive(:update).and_raise(AWS::CloudFormation::Errors::ValidationError.new("No updates are to be performed."))
+    end
+
+    it "apply should return NoUpdate to signal the error" do
+      @stack.apply(nil, nil).should be(:NoUpdates)
+    end
+  end
+
+  describe "when stack update succeeds" do
+    before :each do
+      @stack = Stack.new("stack")
+      @cf_stack.should_receive(:exists?).at_least(:once).and_return(true)
+      File.should_receive(:read).and_return("template")
+      @cf.should_receive(:validate_template).and_return({"valid" => true})
+      @cf_stack.should_receive(:update).and_return(false)
+      @cf_stack.should_receive(:events).and_return([])
+      @cf_stack.should_receive(:status).at_least(:once).and_return("UPDATE_COMPLETE")
+    end
+
+    it "apply should return Succeeded" do
+      @stack.apply(nil, nil).should be(:Succeeded)
     end
   end
 end
