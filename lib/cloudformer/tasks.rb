@@ -37,7 +37,7 @@ module Cloudformer
         end
         result = @stack.apply(template, parameters, disable_rollback, capabilities, notify)
         if result == :Failed then exit 1 end
-        if result == :NoUpdates then exit 2 end
+        if result == :NoUpdates then exit 0 end
      end
    end
 
