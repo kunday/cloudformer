@@ -20,7 +20,7 @@ class Stack
   end
 
   def apply(template_file, parameters, disable_rollback=false, capabilities=[], notify=[])
-    if ( template_file =~ /^https:\/\/.*(.json)$/ )
+    if ( template_file =~ /^http:\/\/.*(.json)$/ )
       template = template_file
     elsif ( template_file =~ /^https:\/\/s3\S+\.amazonaws\.com\/(.*)/ )
       template = template_file
