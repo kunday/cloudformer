@@ -28,7 +28,7 @@ class Stack
         response = HTTParty.get(template_file)
         template = response.body
       rescue => e
-        puts "Unable to retieve json file for template from url - #{e}"
+        puts "Unable to retieve json file for template from #{template_file} - #{e.class}, #{e}"
         return :Failed
       end
     else
