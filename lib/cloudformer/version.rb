@@ -1,3 +1,3 @@
 module Cloudformer
-  VERSION = "0.0.15"
+  VERSION = "0.0.18"
 end
