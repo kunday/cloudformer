@@ -22,4 +22,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec"
   spec.add_dependency "rake"
   spec.add_dependency "aws-sdk"
+  spec.add_dependency "httparty"
 end

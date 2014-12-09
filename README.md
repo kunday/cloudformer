@@ -52,8 +52,8 @@ You can add cloudformer tasks to your project by adding the following to your ra
     end
 
 where `cloudformation/cloudformation.json` is the stack json file and parameters is a hash of parameters used in the template.
-For a template which takes the following parameters: 
-  
+For a template which takes the following parameters:
+
     "Parameters": {
       "PackageUrl": {
         "Type": "String"
@@ -62,13 +62,13 @@ For a template which takes the following parameters:
         "Type": "String"
       }
     }
-  
+
 the parameter hash(Ruby Object) would look like:
 
     {
       "PackageUrl" => "http://localhost/app.rpm",
-      "PackageVersion" => "123"  
-    }  
+      "PackageVersion" => "123"
+    }
 
 If you have a template with no parameters, pass an empty hash `{}` instead.
 
@@ -107,13 +107,16 @@ Here is a simple Cloudformation Stack(Code available in the samples directory) w
           }
         }
     }
-    
-Then, in your Rakefile add, 
+
+Then, in your Rakefile add,
 
     require 'cloudformer/tasks'
 
     Cloudformer::Tasks.new("app") do |t|
       t.template = "basic_template.json"
+      t.tags = [{'Key' => 'Name',  'Value' => 'BASIC-TMPLT'},
+                {'Key' => 'Owner', 'Value' => 'APPOWNER'}]
+
       #AMI Works in Sydney region only, ensure you supply the right AMI.
       t.parameters = {"AmiId" => "ami-8da439b7"}
     end
@@ -145,7 +148,7 @@ Running `rake apply` will create an environment or update existing depending on 
     ==================================================================================================
 
 Running `rake apply` again gives us:
-    
+
     No updates are to be performed.
 
 To remove the stack `rake delete` gives us:
@@ -170,7 +173,7 @@ Attempts to delete a non-existing stack will result in:
     ==============================================
 
 To recreate the stack use `rake recreate`:
-  
+
     =================================================================================================
     Attempting to delete stack - app
     =================================================================================================
@@ -194,13 +197,13 @@ To recreate the stack use `rake recreate`:
     =================================================================================================
 
 To see the stack outputs `rake outputs`:
-    
+
     ==============================
     Server -  - 172.31.3.52
-    ============================== 
+    ==============================
 
 To see recent events on the stack `rake events`:
-    
+
     ==================================================================================================
     2013-10-24 08:06:31 UTC - AWS::CloudFormation::Stack - CREATE_IN_PROGRESS - User Initiated
     2013-10-24 08:06:52 UTC - AWS::EC2::Instance - CREATE_IN_PROGRESS -
