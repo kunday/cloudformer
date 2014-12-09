@@ -35,7 +35,7 @@ class Stack
       template = File.read(template_file)
     end
     validation = validate(template)
-    unless template == template_file || validation["valid"]
+    unless validation["valid"]
       puts "Unable to update - #{validation["response"][:code]} - #{validation["response"][:message]}"
       return :Failed
     end
