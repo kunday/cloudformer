@@ -23,7 +23,7 @@ class Stack
   def apply(template_file, parameters, disable_rollback=false, capabilities=[], notify=[], tags=[])
     if ( template_file =~ /^https:\/\/s3\S+\.amazonaws\.com\/(.*)/ )
       template = template_file
-    elsif ( template_file =~ /^http.*(.json)$/ )
+    elsif ( template_file =~ /^http.*.json$/ )
       begin
         response = HTTParty.get(template_file)
         template = response.body
