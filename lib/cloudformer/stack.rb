@@ -28,7 +28,7 @@ class Stack
         response = HTTParty.get(template_file)
         template = response.body
       rescue => e
-        puts "Unable to retieve json file for template from #{template_file} - #{e.class}, #{e}"
+        puts "Unable to retieve json file for #{name} template from #{template_file} - #{e.class}, #{e}"
         return :Failed
       end
     else
@@ -36,7 +36,7 @@ class Stack
     end
     validation = validate(template)
     unless validation["valid"]
-      puts "Unable to update - #{validation["response"][:code]} - #{validation["response"][:message]}"
+      puts "Unable to update #{name} - #{validation["response"][:code]} - #{validation["response"][:message]}"
       return :Failed
     end
     pending_operations = false
@@ -56,7 +56,7 @@ class Stack
 
   def deploy_succeded?
     return true unless FAILURE_STATES.include?(stack.status)
-    puts "Unable to deploy template. Check log for more information."
+    puts "Unable to deploy template for #{name}. Check log for more information."
     false
   end
 
@@ -90,7 +90,7 @@ class Stack
   def events(options = {})
     with_highlight do
       if !deployed
-        puts "Stack not up."
+        puts "Stack #{name} not up."
         return
       end
       stack.events.sort_by {|a| a.timestamp}.each do |event|
@@ -102,7 +102,7 @@ class Stack
   def outputs
     with_highlight do
     if !deployed
-      puts "Stack not up."
+      puts "Stack #{name} not up."
       return 1
     end
       stack.outputs.each do |output|
@@ -120,13 +120,21 @@ class Stack
     }
   end
 
+  def validate(template)
+    response = @cf.validate_template(template)
+    return {
+      "valid" => response[:code].nil?,
+      "response" => response
+    }
+  end
+
   private
   def wait_until_end
     printed = []
     current_time = Time.now
     with_highlight do
       if !deployed
-        puts "Stack not up."
+        puts "Stack #{name} not up."
         return
       end
       loop do
@@ -146,14 +154,6 @@ class Stack
     puts "="*cols
   end
 
-  def validate(template)
-    response = @cf.validate_template(template)
-    return {
-      "valid" => response[:code].nil?,
-      "response" => response
-    }
-  end
-
   def update(template, parameters, capabilities)
     stack.update({
       :template => template,
@@ -164,8 +164,13 @@ class Stack
   end
 
   def create(template, parameters, disable_rollback, capabilities, notify, tags)
-    puts "Initializing stack creation..."
-    @cf.stacks.create(name, template, :parameters => parameters, :disable_rollback => disable_rollback, :capabilities => capabilities, :notify => notify, :tags => tags)
+    puts "Initializing #{name} stack creation..."
+    if tags.any?
+      @cf.stacks.create(name, template, :parameters => parameters, :disable_rollback => disable_rollback, :capabilities => capabilities, :notify => notify, :tags => tags)
+    else
+      @cf.stacks.create(name, template, :parameters => parameters, :disable_rollback => disable_rollback, :capabilities => capabilities, :notify => notify)
+    end
+
     sleep 10
     return true
   end
