@@ -140,7 +140,7 @@ You should then see following commands:
     rake stop[stack_name]          # Stop EC2 instances in stack
     rake validate[stack_name]      # Validate the Stack
 
-Running `rake status` gives us:
+Running `rake status[stack_name]` gives us:
 
     ===============================================
       app - Not Deployed
