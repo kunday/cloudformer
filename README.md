@@ -8,12 +8,17 @@ The list of rake tasks provided are:
 
 ```
 
-rake apply           # Apply Stack with Cloudformation script and parameters(And wait till complete - supports updates)
-rake delete          # Delete stack from CloudFormation(And wait till stack is complete)
-rake events          # Get the recent events from the stack
-rake outputs         # Get the outputs of stack
-rake recreate        # Recreate stack(runs delete & apply)
-rake status          # Get the deployed app status
+    rake list                      # List the names of the available tasks
+    rake apply[stack_name]         # Apply Stack with Cloudformation script and parameters
+    rake delete[stack_name]        # Delete stack from CloudFormation
+    rake events[stack_name]        # Get the recent events from the stack
+    rake force_delete[stack_name]  # Delete stack after stopping all instances
+    rake outputs[stack_name]       # Get the outputs of stack
+    rake recreate[stack_name]      # Recreate stack
+    rake start[stack_name]         # Start EC2 instances in stack
+    rake status[stack_name]        # Get the deployed app status
+    rake stop[stack_name]          # Stop EC2 instances in stack
+    rake validate[stack_name]      # Validate the Stack
 
 ```
 
@@ -123,12 +128,17 @@ Then, in your Rakefile add,
 
 You should then see following commands:
 
-    rake apply     # Apply Stack with Cloudformation script and parameters
-    rake delete    # Delete stack from CloudFormation
-    rake events    # Get the recent events from the stack
-    rake outputs   # Get the outputs of stack
-    rake recreate  # Recreate stack
-    rake status    # Get the deployed app status
+    rake list                      # List the names of the available tasks
+    rake apply[stack_name]         # Apply Stack with Cloudformation script and parameters
+    rake delete[stack_name]        # Delete stack from CloudFormation
+    rake events[stack_name]        # Get the recent events from the stack
+    rake force_delete[stack_name]  # Delete stack after stopping all instances
+    rake outputs[stack_name]       # Get the outputs of stack
+    rake recreate[stack_name]      # Recreate stack
+    rake start[stack_name]         # Start EC2 instances in stack
+    rake status[stack_name]        # Get the deployed app status
+    rake stop[stack_name]          # Stop EC2 instances in stack
+    rake validate[stack_name]      # Validate the Stack
 
 Running `rake status` gives us:
 
@@ -136,7 +146,7 @@ Running `rake status` gives us:
       app - Not Deployed
     ================================================
 
-Running `rake apply` will create an environment or update existing depending on the nature of action requested in parameters:
+Running `rake apply[stack_name]` will create an environment or update existing depending on the nature of action requested in parameters:
 
     Initializing stack creation...
     ==================================================================================================
@@ -147,11 +157,11 @@ Running `rake apply` will create an environment or update existing depending on 
     2013-10-24 07:56:26 UTC - AWS::CloudFormation::Stack - CREATE_COMPLETE -
     ==================================================================================================
 
-Running `rake apply` again gives us:
+Running `rake apply[stack_name]` again gives us:
 
     No updates are to be performed.
 
-To remove the stack `rake delete` gives us:
+To remove the stack `rake delete[stack_name]` gives us:
 
     ==============================================================================================
     Attempting to delete stack - app
@@ -172,7 +182,7 @@ Attempts to delete a non-existing stack will result in:
     Stack not up.
     ==============================================
 
-To recreate the stack use `rake recreate`:
+To recreate the stack use `rake recreate[stack_name]`:
 
     =================================================================================================
     Attempting to delete stack - app
@@ -196,13 +206,13 @@ To recreate the stack use `rake recreate`:
     Server -  - 172.31.3.52
     =================================================================================================
 
-To see the stack outputs `rake outputs`:
+To see the stack outputs `rake outputs[stack_name]`:
 
     ==============================
     Server -  - 172.31.3.52
     ==============================
 
-To see recent events on the stack `rake events`:
+To see recent events on the stack `rake events[stack_name]`:
 
     ==================================================================================================
     2013-10-24 08:06:31 UTC - AWS::CloudFormation::Stack - CREATE_IN_PROGRESS - User Initiated
