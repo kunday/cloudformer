@@ -1,4 +1,4 @@
-require 'aws-sdk'
+require 'aws-sdk-v1'
 require 'httparty'
 
 class Stack
@@ -179,4 +179,3 @@ class Stack
     end
   end
 end
-
